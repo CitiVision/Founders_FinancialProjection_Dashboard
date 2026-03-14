@@ -39,7 +39,8 @@ export default function ComparePage({ allScenarioResults, scenarios }) {
     const yr1Rev = yr1Rows.reduce((s, r) => s + (r.revenue || 0), 0);
     const yr5Rev = yr5Rows.reduce((s, r) => s + (r.revenue || 0), 0);
     const cumRev = (res.rows || []).reduce((s, r) => s + (r.revenue || 0), 0);
-    const lastRow = (res.rows || [])[59] || {};
+    const allRows = res.rows || [];
+    const lastRow = allRows[allRows.length - 1] || {};
     const peakEmp = Math.max(...(res.rows || []).map(r => r.totalEmp || 0), 0);
     return {
       name: (scenarios[i] || {}).name || `Scenario ${i + 1}`,

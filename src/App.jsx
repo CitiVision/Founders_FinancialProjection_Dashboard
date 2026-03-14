@@ -535,7 +535,7 @@ function runModel(inp) {
       isPostLaunch, _launch: isLaunch,
       clients, pipeline,
       indiaC, meC, europeC, ausC,
-      sessionsPerClient: sessionsPerClientPerMonth + onboardingSessionsPerClient,
+      sessionsPerClient: clients > 0 ? (totalSessions / clients) : sessionsPerClientPerMonth,
       totalSessions, empCapacity, reqEmp, totalEmp, newHires,
       salaryExp, officeExp, totalExp,
       indiaINR, meINR, europeINR, ausINR,
@@ -619,7 +619,7 @@ export default function SentientGrid() {
   const removeScenario = (idx) => {
     if (scenarios.length <= 1) return;
     setScenarios(prev => prev.filter((_, i) => i !== idx));
-    setActiveScenarioIdx(prev => Math.min(prev, scenarios.length - 2));
+    setActiveScenarioIdx(prev => Math.max(0, Math.min(prev, scenarios.length - 2)));
   };
 
   const renameScenario = (idx, newName) => {

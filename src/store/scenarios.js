@@ -4,10 +4,9 @@ export const SCENARIO_NAMES = {
   2: 'Scenario C — Custom',
 };
 
-export function createDefaultScenario(pricingModel = 'annualSaas', name = 'Scenario A') {
+export function createDefaultScenario(defaultInp, pricingModel = 'annualSaas', name = 'Scenario A') {
   return {
     name,
-    pricingModel,
-    inputs: null,
+    inputs: { ...(defaultInp || {}), pricingModel },
   };
 }
