@@ -5,6 +5,8 @@ import {
   ResponsiveContainer, ComposedChart, ReferenceLine,
   PieChart, Pie, Cell
 } from "recharts";
+import { PRICE_TIERS } from './constants/perAcreDefaults.js';
+import ComparePage from './pages/ComparePage.jsx';
 
 /* ────────────────────────────────────────────────
    FORMATTERS
@@ -151,129 +153,439 @@ const DataTable = ({ cols, rows }) => (
 );
 
 /* ════════════════════════════════════════════════
+   DEFAULT INPUTS
+════════════════════════════════════════════════ */
+const DEFAULT_INP = {
+  ebitdaPct:          30,
+  valuationNow:       100000000,
+  pe:                 20,
+  fiveYearReturn:     5,
+  avgDealSize:        5000000,
+  conversionRate: 15,
+  avgSalesCycle: 120,
+  avgPaymentLag: 45,
+  initialClients:     3,
+  revenuePerClientY1: 5000000,
+  clientGrowthQtr:    25,
+  initialInvestment:  1200000,
+  initialEmployees:   3,
+  platformLaunchMonth:   1,
+  launchBoostMultiplier: 1.5,
+  indiaPct:       40,
+  mePct:          25,
+  europePct:      20,
+  australiaPct:   15,
+  indiaPctY2:     40,
+  mePctY2:        25,
+  europePctY2:    20,
+  australiaPctY2: 15,
+  indiaPctY3:     40,
+  mePctY3:        25,
+  europePctY3:    20,
+  australiaPctY3: 15,
+  indiaPctY4:     40,
+  mePctY4:        25,
+  europePctY4:    20,
+  australiaPctY4: 15,
+  indiaPctY5:     40,
+  mePctY5:        25,
+  europePctY5:    20,
+  australiaPctY5: 15,
+  aedToInr: 22.5,
+  eurToInr: 90.0,
+  audToInr: 55.0,
+  sessionsPerClientPerMonth:   4,
+  sessionCapacityPerEmployee:  20,
+  onboardingSessionsPerClient: 2,
+  salaryPerDesigner:           50000,
+  officePerDesigner:            5000,
+  salaries:   200000,
+  rent:        30000,
+  stackCosts:  50000,
+  apiCosts:    20000,
+  skuDeveloper:    1000000,
+  skuDesigner:      800000,
+  skuTrial:         200000,
+  skuConsulting:   1500000,
+  skuDeveloperY1:  1000000,
+  skuDesignerY1:    800000,
+  skuTrialY1:       200000,
+  skuConsultingY1: 1500000,
+  skuDeveloperY2:  1000000,
+  skuDesignerY2:    800000,
+  skuTrialY2:       200000,
+  skuConsultingY2: 1500000,
+  skuDeveloperY3:  1000000,
+  skuDesignerY3:    800000,
+  skuTrialY3:       200000,
+  skuConsultingY3: 1500000,
+  skuDeveloperY4:  1000000,
+  skuDesignerY4:    800000,
+  skuTrialY4:       200000,
+  skuConsultingY4: 1500000,
+  skuDeveloperY5:  1000000,
+  skuDesignerY5:    800000,
+  skuTrialY5:       200000,
+  skuConsultingY5: 1500000,
+  skuDeveloperY2_month: 0,
+  skuDesignerY2_month:  0,
+  skuTrialY2_month:     0,
+  skuConsultingY2_month:0,
+  skuDeveloperY3_month: 0,
+  skuDesignerY3_month:  0,
+  skuTrialY3_month:     0,
+  skuConsultingY3_month:0,
+  skuDeveloperY4_month: 0,
+  skuDesignerY4_month:  0,
+  skuTrialY4_month:     0,
+  skuConsultingY4_month:0,
+  skuDeveloperY5_month: 0,
+  skuDesignerY5_month:  0,
+  skuTrialY5_month:     0,
+  skuConsultingY5_month:0,
+  skuDeveloperY2_yearPct: 100, skuDeveloperY2_monthPct: 0,
+  skuDesignerY2_yearPct:  100, skuDesignerY2_monthPct:  0,
+  skuTrialY2_yearPct:     100, skuTrialY2_monthPct:     0,
+  skuConsultingY2_yearPct:100, skuConsultingY2_monthPct: 0,
+  skuDeveloperY3_yearPct: 100, skuDeveloperY3_monthPct: 0,
+  skuDesignerY3_yearPct:  100, skuDesignerY3_monthPct:  0,
+  skuTrialY3_yearPct:     100, skuTrialY3_monthPct:     0,
+  skuConsultingY3_yearPct:100, skuConsultingY3_monthPct: 0,
+  skuDeveloperY4_yearPct: 100, skuDeveloperY4_monthPct: 0,
+  skuDesignerY4_yearPct:  100, skuDesignerY4_monthPct:  0,
+  skuTrialY4_yearPct:     100, skuTrialY4_monthPct:     0,
+  skuConsultingY4_yearPct:100, skuConsultingY4_monthPct: 0,
+  skuDeveloperY5_yearPct: 100, skuDeveloperY5_monthPct: 0,
+  skuDesignerY5_yearPct:  100, skuDesignerY5_monthPct:  0,
+  skuTrialY5_yearPct:     100, skuTrialY5_monthPct:     0,
+  skuConsultingY5_yearPct:100, skuConsultingY5_monthPct: 0,
+  skuDevPct:   30,
+  skuDesPct:   25,
+  skuTrialPct: 20,
+  skuConsPct:  25,
+  inflation: 5,
+  // Per-acre pricing model
+  pricingModel: 'annualSaas',
+  pricePerAcre: 10000,
+  avgProjectSizeAcres: 35,
+  totalSAMacres: 350000,
+  marketCapturePct: 1,
+  perAcreProjectsY1: 25,
+  perAcreProjectsY2: 60,
+  perAcreProjectsY3: 120,
+  perAcreProjectsY4: 200,
+  perAcreProjectsY5: 350,
+  activePricingTier: 'baseline',
+  // Operating cost variables
+  numBDPersonnel: 6,
+  numPlanningSpecialists: 1,
+  numOperationsStaff: 2,
+  numFounders: 2,
+  salaryBD: 2500000,
+  salaryPlanningSpecialist: 3500000,
+  salaryOperations: 1800000,
+  salaryFounder: 5000000,
+  cloudInfraAnnual: 4000000,
+  softwareCRMAnnual: 3000000,
+  useHeadcountSalaryModel: false,
+};
+
+/* ════════════════════════════════════════════════
+   CORE MODEL FUNCTION
+════════════════════════════════════════════════ */
+function runModel(inp) {
+  const {
+    initialClients, revenuePerClientY1, clientGrowthQtr,
+    initialInvestment, initialEmployees,
+    platformLaunchMonth, launchBoostMultiplier,
+    indiaPct, mePct, europePct, australiaPct,
+    indiaPctY2, mePctY2, europePctY2, australiaPctY2,
+    indiaPctY3, mePctY3, europePctY3, australiaPctY3,
+    indiaPctY4, mePctY4, europePctY4, australiaPctY4,
+    indiaPctY5, mePctY5, europePctY5, australiaPctY5,
+    aedToInr, eurToInr, audToInr,
+    sessionsPerClientPerMonth, sessionCapacityPerEmployee, onboardingSessionsPerClient,
+    salaryPerDesigner, officePerDesigner,
+    salaries, rent, stackCosts, apiCosts,
+    skuDevPct, skuDesPct, skuTrialPct, skuConsPct,
+    skuDeveloper, skuDesigner, skuTrial, skuConsulting,
+    skuDeveloperY2, skuDesignerY2, skuTrialY2, skuConsultingY2,
+    skuDeveloperY3, skuDesignerY3, skuTrialY3, skuConsultingY3,
+    skuDeveloperY4, skuDesignerY4, skuTrialY4, skuConsultingY4,
+    skuDeveloperY5, skuDesignerY5, skuTrialY5, skuConsultingY5,
+    conversionRate, avgSalesCycle, avgPaymentLag, ebitdaPct, pe, valuationNow, fiveYearReturn, inflation,
+    pricingModel, pricePerAcre, avgProjectSizeAcres,
+    perAcreProjectsY1, perAcreProjectsY2, perAcreProjectsY3, perAcreProjectsY4, perAcreProjectsY5,
+    numBDPersonnel, numPlanningSpecialists, numOperationsStaff, numFounders,
+    salaryBD, salaryPlanningSpecialist, salaryOperations, salaryFounder,
+    cloudInfraAnnual, softwareCRMAnnual, useHeadcountSalaryModel,
+  } = inp;
+
+  const launchAbsMonth = 12 + Math.max(1, Math.min(12, Math.round(platformLaunchMonth)));
+
+  // SKU prices with inflation
+  const skuPrices = {};
+  for (let y = 1; y <= 5; y++) {
+    const base = y === 1 ? 1 : (1 + inflation / 100) ** (y - 1);
+    skuPrices[y] = {
+      developer: skuDeveloper * base,
+      designer: skuDesigner * base,
+      trial: skuTrial * base,
+      consulting: skuConsulting * base,
+    };
+    if (y >= 2) {
+      skuPrices[y].developer = skuDeveloperY2 || skuPrices[y].developer;
+      skuPrices[y].designer = skuDesignerY2 || skuPrices[y].designer;
+      skuPrices[y].trial = skuTrialY2 || skuPrices[y].trial;
+      skuPrices[y].consulting = skuConsultingY2 || skuPrices[y].consulting;
+      if (y >= 3) {
+        skuPrices[y].developer = skuDeveloperY3 || skuPrices[y].developer;
+        skuPrices[y].designer = skuDesignerY3 || skuPrices[y].designer;
+        skuPrices[y].trial = skuTrialY3 || skuPrices[y].trial;
+        skuPrices[y].consulting = skuConsultingY3 || skuPrices[y].consulting;
+      }
+      if (y >= 4) {
+        skuPrices[y].developer = skuDeveloperY4 || skuPrices[y].developer;
+        skuPrices[y].designer = skuDesignerY4 || skuPrices[y].designer;
+        skuPrices[y].trial = skuTrialY4 || skuPrices[y].trial;
+        skuPrices[y].consulting = skuConsultingY4 || skuPrices[y].consulting;
+      }
+      if (y >= 5) {
+        skuPrices[y].developer = skuDeveloperY5 || skuPrices[y].developer;
+        skuPrices[y].designer = skuDesignerY5 || skuPrices[y].designer;
+        skuPrices[y].trial = skuTrialY5 || skuPrices[y].trial;
+        skuPrices[y].consulting = skuConsultingY5 || skuPrices[y].consulting;
+      }
+    }
+  }
+
+  let clients = initialClients;
+  let capital = initialInvestment;
+  let totalEmp = initialEmployees;
+  let launchApplied = false;
+
+  const receipts = {};
+  const scheduleReceipt = (m, amt) => {
+    if (m < 1 || m > 60) return;
+    receipts[m] = (receipts[m] || 0) + amt;
+  };
+
+  // Fix 1: Include both sales cycle and payment lag in initial scheduling delay
+  const totalPipelineDelayMonths = Math.round(((avgSalesCycle || 0) + (avgPaymentLag || 0)) / 30);
+  if (initialClients > 0) {
+    const monthlyInit = (revenuePerClientY1 || 0) / 12 * initialClients;
+    for (let m = 1 + totalPipelineDelayMonths; m <= 60; m++) scheduleReceipt(m, monthlyInit);
+  }
+  let prevClients = 0;
+
+  const rows = [];
+
+  for (let abs = 1; abs <= 60; abs++) {
+    const year = Math.ceil(abs / 12);
+    const miy = ((abs - 1) % 12) + 1;
+    const isLaunch = abs === launchAbsMonth;
+
+    if (abs > 1 && (abs - 1) % 3 === 0) {
+      clients = Math.round(clients * (1 + clientGrowthQtr / 100));
+    }
+    if (isLaunch && !launchApplied) {
+      clients = Math.round(clients * launchBoostMultiplier);
+      launchApplied = true;
+    }
+
+    const isPostLaunch = abs >= launchAbsMonth;
+    const pipeline = Math.round(clients / (conversionRate / 100));
+
+    let indiaPctVal, mePctVal, europePctVal, australiaPctVal;
+    if (year === 1) {
+      indiaPctVal = indiaPct; mePctVal = mePct; europePctVal = europePct; australiaPctVal = australiaPct;
+    } else if (year === 2) {
+      indiaPctVal = indiaPctY2; mePctVal = mePctY2; europePctVal = europePctY2; australiaPctVal = australiaPctY2;
+    } else if (year === 3) {
+      indiaPctVal = indiaPctY3; mePctVal = mePctY3; europePctVal = europePctY3; australiaPctVal = australiaPctY3;
+    } else if (year === 4) {
+      indiaPctVal = indiaPctY4; mePctVal = mePctY4; europePctVal = europePctY4; australiaPctVal = australiaPctY4;
+    } else {
+      indiaPctVal = indiaPctY5; mePctVal = mePctY5; europePctVal = europePctY5; australiaPctVal = australiaPctY5;
+    }
+
+    const indiaC = Math.round(clients * indiaPctVal / 100);
+    const meC = Math.round(clients * mePctVal / 100);
+    const europeC = Math.round(clients * europePctVal / 100);
+    const ausC = clients - indiaC - meC - europeC;
+
+    // Compute total annual revenue using SKU mixes and billing mixes
+    let totalRevenueAnnual = 0;
+    let skuRevenueBreakdown = { developer: 0, designer: 0, trial: 0, consulting: 0 };
+    if (isPostLaunch) {
+      const skus = [
+        { id: 'developer', pct: skuDevPct, yearlyPrice: skuPrices[year].developer, monthlyPrice: inp[`skuDeveloperY${year}_month`] },
+        { id: 'designer',  pct: skuDesPct,  yearlyPrice: skuPrices[year].designer,  monthlyPrice: inp[`skuDesignerY${year}_month`]  },
+        { id: 'trial',     pct: skuTrialPct, yearlyPrice: skuPrices[year].trial,     monthlyPrice: inp[`skuTrialY${year}_month`]     },
+        { id: 'consulting',pct: skuConsPct,  yearlyPrice: skuPrices[year].consulting,monthlyPrice: inp[`skuConsultingY${year}_month`]  },
+      ];
+
+      for (const s of skus) {
+        const skuClients = clients * (s.pct / 100);
+        const yearPctKey = `sku${s.id.charAt(0).toUpperCase() + s.id.slice(1)}Y${year}_yearPct`;
+        const monthPctKey = `sku${s.id.charAt(0).toUpperCase() + s.id.slice(1)}Y${year}_monthPct`;
+        const yearlyMix = Number(inp[yearPctKey] ?? 100);
+        const monthlyMix = Number(inp[monthPctKey] ?? (100 - yearlyMix));
+        const yearlyClients = skuClients * (yearlyMix / 100);
+        const monthlyClients = skuClients * (monthlyMix / 100);
+        const yearlyPrice = s.yearlyPrice || 0;
+        const monthlyPrice = (s.monthlyPrice && s.monthlyPrice > 0) ? s.monthlyPrice : (yearlyPrice / 12 || 0);
+        const yearlyRev = yearlyClients * yearlyPrice;
+        const monthlyRev = monthlyClients * monthlyPrice * 12;
+        const skuRev = yearlyRev + monthlyRev;
+        skuRevenueBreakdown[s.id] = skuRev;
+        totalRevenueAnnual += skuRev;
+      }
+    } else {
+      totalRevenueAnnual = revenuePerClientY1 * clients;
+    }
+
+    // Phase 3: Per-acre pricing model
+    let revenue, mrr;
+    if (pricingModel === 'perAcre') {
+      const revenuePerProject = (pricePerAcre || 0) * (avgProjectSizeAcres || 0);
+      const projectTargets = [0, perAcreProjectsY1, perAcreProjectsY2, perAcreProjectsY3, perAcreProjectsY4, perAcreProjectsY5];
+      const projectsThisYear = projectTargets[year] || 0;
+      const annualRevenue = projectsThisYear * revenuePerProject;
+      revenue = annualRevenue;
+      mrr = annualRevenue / 12;
+    } else {
+      revenue = totalRevenueAnnual;
+      mrr = totalRevenueAnnual / 12;
+    }
+
+    // Fix 1: Include both sales cycle and payment lag for delta client scheduling
+    const totalLagMonths = Math.round(((avgSalesCycle || 0) + (avgPaymentLag || 0)) / 30);
+    const deltaSigned = Math.max(0, clients - prevClients);
+    if (deltaSigned > 0) {
+      const skusNew = [
+        { id: 'developer', pct: skuDevPct, yearlyPrice: skuPrices[year].developer, monthlyPrice: inp[`skuDeveloperY${year}_month`] },
+        { id: 'designer',  pct: skuDesPct,  yearlyPrice: skuPrices[year].designer,  monthlyPrice: inp[`skuDesignerY${year}_month`]  },
+        { id: 'trial',     pct: skuTrialPct, yearlyPrice: skuPrices[year].trial,     monthlyPrice: inp[`skuTrialY${year}_month`]     },
+        { id: 'consulting',pct: skuConsPct,  yearlyPrice: skuPrices[year].consulting,monthlyPrice: inp[`skuConsultingY${year}_month`]  },
+      ];
+      for (const s of skusNew) {
+        const skuNewCount = deltaSigned * (s.pct / 100);
+        const yearPctKey = `sku${s.id.charAt(0).toUpperCase() + s.id.slice(1)}Y${year}_yearPct`;
+        const monthPctKey = `sku${s.id.charAt(0).toUpperCase() + s.id.slice(1)}Y${year}_monthPct`;
+        const yearlyMix = Number(inp[yearPctKey] ?? 100);
+        const monthlyMix = Number(inp[monthPctKey] ?? (100 - yearlyMix));
+        const yearlyClients = skuNewCount * (yearlyMix / 100);
+        const monthlyClients = skuNewCount * (monthlyMix / 100);
+        const yearlyPrice = s.yearlyPrice || 0;
+        const monthlyPrice = (s.monthlyPrice && s.monthlyPrice > 0) ? s.monthlyPrice : (yearlyPrice / 12 || 0);
+        const yearlyReceiptMonth = abs + totalLagMonths;
+        scheduleReceipt(yearlyReceiptMonth, yearlyClients * yearlyPrice);
+        const monthlyStart = abs + totalLagMonths;
+        for (let m = monthlyStart; m <= 60; m++) scheduleReceipt(m, monthlyClients * monthlyPrice);
+      }
+    }
+
+    const cashReceived = receipts[abs] || 0;
+
+    const indiaINR = clients > 0 ? revenue * (indiaC / Math.max(1, clients)) : 0;
+    const meINR = clients > 0 ? revenue * (meC / Math.max(1, clients)) : 0;
+    const europeINR = clients > 0 ? revenue * (europeC / Math.max(1, clients)) : 0;
+    const ausINR = clients > 0 ? revenue * (ausC / Math.max(1, clients)) : 0;
+    const meAED = aedToInr > 0 ? meINR / aedToInr : 0;
+    const europeEUR = eurToInr > 0 ? europeINR / eurToInr : 0;
+    const ausAUD = audToInr > 0 ? ausINR / audToInr : 0;
+
+    // Fix 2: Onboarding sessions only for new clients
+    const newClientsThisMonth = Math.max(0, clients - prevClients);
+    const totalSessions =
+      (clients * sessionsPerClientPerMonth) +
+      (newClientsThisMonth * onboardingSessionsPerClient);
+
+    const reqEmp = Math.ceil(totalSessions / Math.max(1, sessionCapacityPerEmployee));
+    const newHires = Math.max(0, reqEmp - totalEmp);
+    totalEmp = Math.max(totalEmp, reqEmp);
+    const empCapacity = totalEmp * sessionCapacityPerEmployee;
+    const extraEmp = Math.max(0, totalEmp - initialEmployees);
+
+    // Phase 7: Operating cost variables
+    let salaryExp, officeExp, totalExp;
+    if (useHeadcountSalaryModel) {
+      const annualSalaries =
+        ((numBDPersonnel || 0) * (salaryBD || 0)) +
+        ((numPlanningSpecialists || 0) * (salaryPlanningSpecialist || 0)) +
+        ((numOperationsStaff || 0) * (salaryOperations || 0)) +
+        ((numFounders || 0) * (salaryFounder || 0));
+      const monthlyBurnBase = (annualSalaries / 12) + ((cloudInfraAnnual || 0) / 12) + ((softwareCRMAnnual || 0) / 12) + (rent || 0);
+      salaryExp = monthlyBurnBase;
+      officeExp = 0;
+      totalExp = monthlyBurnBase;
+    } else {
+      salaryExp = salaries + extraEmp * salaryPerDesigner;
+      officeExp = rent + extraEmp * officePerDesigner;
+      totalExp = salaryExp + officeExp + stackCosts + apiCosts;
+    }
+
+    const net = (cashReceived || 0) - totalExp;
+    capital += net;
+
+    rows.push({
+      abs, year, miy,
+      label: `Y${year}M${String(miy).padStart(2, "0")}`,
+      isPostLaunch, _launch: isLaunch,
+      clients, pipeline,
+      indiaC, meC, europeC, ausC,
+      sessionsPerClient: sessionsPerClientPerMonth + onboardingSessionsPerClient,
+      totalSessions, empCapacity, reqEmp, totalEmp, newHires,
+      salaryExp, officeExp, totalExp,
+      indiaINR, meINR, europeINR, ausINR,
+      meAED, europeEUR, ausAUD,
+      revenue, mrr: mrr ?? revenue, net, capital,
+      pricingModel,
+      devRev: isPostLaunch ? skuRevenueBreakdown.developer : 0,
+      desRev: isPostLaunch ? skuRevenueBreakdown.designer : 0,
+      trialRev: isPostLaunch ? skuRevenueBreakdown.trial : 0,
+      consRev: isPostLaunch ? skuRevenueBreakdown.consulting : 0,
+    });
+    prevClients = clients;
+  }
+
+  // Top-level KPIs
+  const yr5Val = valuationNow * fiveYearReturn;
+  const yr5EBITDA = yr5Val / pe;
+  const yr5Rev = yr5EBITDA / (ebitdaPct / 100);
+  const yr1Total = rows.filter(r => r.year === 1).reduce((s, r) => s + r.revenue, 0);
+  const yr5Total = rows.filter(r => r.year === 5).reduce((s, r) => s + r.revenue, 0);
+  const lastRow = rows[59];
+  const maxEmp = Math.max(...rows.map(r => r.totalEmp));
+  const totalHires = rows.reduce((s, r) => s + r.newHires, 0);
+  const monthlyBurn = inp.useHeadcountSalaryModel
+    ? (((inp.numBDPersonnel || 0) * (inp.salaryBD || 0) + (inp.numPlanningSpecialists || 0) * (inp.salaryPlanningSpecialist || 0) + (inp.numOperationsStaff || 0) * (inp.salaryOperations || 0) + (inp.numFounders || 0) * (inp.salaryFounder || 0)) / 12) + ((inp.cloudInfraAnnual || 0) / 12) + ((inp.softwareCRMAnnual || 0) / 12) + (inp.rent || 0)
+    : inp.salaries + inp.rent + inp.stackCosts + inp.apiCosts;
+  const runway = monthlyBurn > 0 ? Math.floor(inp.initialInvestment / monthlyBurn) : 99;
+
+  const postLaunchRows = rows.filter(r => r.isPostLaunch);
+  const avgSessionsPerClient = postLaunchRows.length > 0
+    ? postLaunchRows.reduce((s, r) => s + r.sessionsPerClient, 0) / postLaunchRows.length
+    : 0;
+
+  return { rows, kpi: { yr5Val, yr5EBITDA, yr5Rev, yr1Total, yr5Total, lastRow, maxEmp, totalHires, monthlyBurn, runway, launchAbsMonth, avgSessionsPerClient } };
+}
+
+/* ════════════════════════════════════════════════
    MAIN COMPONENT
 ════════════════════════════════════════════════ */
 export default function SentientGrid() {
 
-  const [inp, setInp] = useState({
-    ebitdaPct:          30,
-    valuationNow:       100000000,
-    pe:                 20,
-    fiveYearReturn:     5,
-    yoyGrowth:          60,
-    avgDealSize:        5000000,
-    // pipeline / sales timing
-    conversionRate: 15,
-    avgSalesCycle: 120,
-    avgPaymentLag: 45,
-    initialClients:     3,
-    revenuePerClientY1: 5000000,
-    clientGrowthQtr:    25,
-    initialInvestment:  1200000,
-    initialEmployees:   3,
-    platformLaunchMonth:   1,
-    launchBoostMultiplier: 1.5,
-    indiaPct:       40,
-    mePct:          25,
-    europePct:      20,
-    australiaPct:   15,
-    indiaPctY2:     40,
-    mePctY2:        25,
-    europePctY2:    20,
-    australiaPctY2: 15,
-    indiaPctY3:     40,
-    mePctY3:        25,
-    europePctY3:    20,
-    australiaPctY3: 15,
-    indiaPctY4:     40,
-    mePctY4:        25,
-    europePctY4:    20,
-    australiaPctY4: 15,
-    indiaPctY5:     40,
-    mePctY5:        25,
-    europePctY5:    20,
-    australiaPctY5: 15,
-    aedToInr: 22.5,
-    eurToInr: 90.0,
-    audToInr: 55.0,
-    sessionsPerClientPerMonth:   4,
-    sessionCapacityPerEmployee:  20,
-    onboardingSessionsPerClient: 2,
-    salaryPerDesigner:           50000,
-    officePerDesigner:            5000,
-    salaries:   200000,
-    rent:        30000,
-    stackCosts:  50000,
-    apiCosts:    20000,
-    skuDeveloper:    1000000,
-    skuDesigner:      800000,
-    skuTrial:         200000,
-    skuConsulting:   1500000,
-    skuDeveloperY1:  1000000,
-    skuDesignerY1:    800000,
-    skuTrialY1:       200000,
-    skuConsultingY1: 1500000,
-    skuDeveloperY2:  1000000,
-    skuDesignerY2:    800000,
-    skuTrialY2:       200000,
-    skuConsultingY2: 1500000,
-    skuDeveloperY3:  1000000,
-    skuDesignerY3:    800000,
-    skuTrialY3:       200000,
-    skuConsultingY3: 1500000,
-    skuDeveloperY4:  1000000,
-    skuDesignerY4:    800000,
-    skuTrialY4:       200000,
-    skuConsultingY4: 1500000,
-    skuDeveloperY5:  1000000,
-    skuDesignerY5:    800000,
-    skuTrialY5:       200000,
-    skuConsultingY5: 1500000,
-    // monthly price overrides (if 0 or falsy, monthly = yearly / 12)
-    skuDeveloperY2_month: 0,
-    skuDesignerY2_month:  0,
-    skuTrialY2_month:     0,
-    skuConsultingY2_month:0,
-    skuDeveloperY3_month: 0,
-    skuDesignerY3_month:  0,
-    skuTrialY3_month:     0,
-    skuConsultingY3_month:0,
-    skuDeveloperY4_month: 0,
-    skuDesignerY4_month:  0,
-    skuTrialY4_month:     0,
-    skuConsultingY4_month:0,
-    skuDeveloperY5_month: 0,
-    skuDesignerY5_month:  0,
-    skuTrialY5_month:     0,
-    skuConsultingY5_month:0,
-    // billing mix: yearly % and monthly % (must sum to 100)
-    skuDeveloperY2_yearPct: 100, skuDeveloperY2_monthPct: 0,
-    skuDesignerY2_yearPct:  100, skuDesignerY2_monthPct:  0,
-    skuTrialY2_yearPct:     100, skuTrialY2_monthPct:     0,
-    skuConsultingY2_yearPct:100, skuConsultingY2_monthPct: 0,
-    skuDeveloperY3_yearPct: 100, skuDeveloperY3_monthPct: 0,
-    skuDesignerY3_yearPct:  100, skuDesignerY3_monthPct:  0,
-    skuTrialY3_yearPct:     100, skuTrialY3_monthPct:     0,
-    skuConsultingY3_yearPct:100, skuConsultingY3_monthPct: 0,
-    skuDeveloperY4_yearPct: 100, skuDeveloperY4_monthPct: 0,
-    skuDesignerY4_yearPct:  100, skuDesignerY4_monthPct:  0,
-    skuTrialY4_yearPct:     100, skuTrialY4_monthPct:     0,
-    skuConsultingY4_yearPct:100, skuConsultingY4_monthPct: 0,
-    skuDeveloperY5_yearPct: 100, skuDeveloperY5_monthPct: 0,
-    skuDesignerY5_yearPct:  100, skuDesignerY5_monthPct:  0,
-    skuTrialY5_yearPct:     100, skuTrialY5_monthPct:     0,
-    skuConsultingY5_yearPct:100, skuConsultingY5_monthPct: 0,
-    skuDevPct:   30,
-    skuDesPct:   25,
-    skuTrialPct: 20,
-    skuConsPct:  25,
-    inflation: 5,
-  });
+  const [scenarios, setScenarios] = useState([{ name: 'Scenario A', inputs: { ...DEFAULT_INP } }]);
+  const [activeScenarioIdx, setActiveScenarioIdx] = useState(0);
+  const inp = scenarios[activeScenarioIdx].inputs;
 
   const upd = (k, v) => {
     const val = parseFloat(v) || 0;
-    setInp(p => {
-      const next = { ...p, [k]: val };
+    setScenarios(prev => prev.map((s, i) => {
+      if (i !== activeScenarioIdx) return s;
+      const next = { ...s.inputs, [k]: val };
       try {
         if (k.endsWith('yearPct')) {
           const other = k.replace('yearPct', 'monthPct');
@@ -283,8 +595,35 @@ export default function SentientGrid() {
           next[other] = Math.max(0, 100 - val);
         }
       } catch (e) {}
-      return next;
-    });
+      return { ...s, inputs: next };
+    }));
+  };
+
+  const updStr = (k, v) => {
+    setScenarios(prev => prev.map((s, i) => {
+      if (i !== activeScenarioIdx) return s;
+      return { ...s, inputs: { ...s.inputs, [k]: v } };
+    }));
+  };
+
+  const addScenario = () => {
+    if (scenarios.length >= 3) return;
+    const newScenario = {
+      name: `Scenario ${['A', 'B', 'C'][scenarios.length]}`,
+      inputs: { ...DEFAULT_INP },
+    };
+    setScenarios(prev => [...prev, newScenario]);
+    setActiveScenarioIdx(scenarios.length);
+  };
+
+  const removeScenario = (idx) => {
+    if (scenarios.length <= 1) return;
+    setScenarios(prev => prev.filter((_, i) => i !== idx));
+    setActiveScenarioIdx(prev => Math.min(prev, scenarios.length - 2));
+  };
+
+  const renameScenario = (idx, newName) => {
+    setScenarios(prev => prev.map((s, i) => i === idx ? { ...s, name: newName } : s));
   };
 
   const [tab, setTab]        = useState("overview");
@@ -292,262 +631,9 @@ export default function SentientGrid() {
   const [timeframe, setTimeframe] = useState("1-5");
 
   /* ════════════ CORE MODEL ════════════ */
-  const { rows, kpi } = useMemo(() => {
-    const {
-      initialClients, revenuePerClientY1, clientGrowthQtr,
-      initialInvestment, initialEmployees,
-      platformLaunchMonth, launchBoostMultiplier,
-      indiaPct, mePct, europePct, australiaPct,
-      indiaPctY2, mePctY2, europePctY2, australiaPctY2,
-      indiaPctY3, mePctY3, europePctY3, australiaPctY3,
-      indiaPctY4, mePctY4, europePctY4, australiaPctY4,
-      indiaPctY5, mePctY5, europePctY5, australiaPctY5,
-      aedToInr, eurToInr, audToInr,
-      sessionsPerClientPerMonth, sessionCapacityPerEmployee, onboardingSessionsPerClient,
-      salaryPerDesigner, officePerDesigner,
-      salaries, rent, stackCosts, apiCosts,
-      skuDevPct, skuDesPct, skuTrialPct, skuConsPct,
-      skuDeveloper, skuDesigner, skuTrial, skuConsulting,
-      skuDeveloperY2, skuDesignerY2, skuTrialY2, skuConsultingY2,
-      skuDeveloperY3, skuDesignerY3, skuTrialY3, skuConsultingY3,
-      skuDeveloperY4, skuDesignerY4, skuTrialY4, skuConsultingY4,
-      skuDeveloperY5, skuDesignerY5, skuTrialY5, skuConsultingY5,
-      conversionRate, avgSalesCycle, avgPaymentLag, ebitdaPct, pe, valuationNow, fiveYearReturn, inflation,
-    } = inp;
+  const { rows, kpi } = useMemo(() => runModel(inp), [inp]);
 
-    const launchAbsMonth = 12 + Math.max(1, Math.min(12, Math.round(platformLaunchMonth)));
-
-    // SKU prices with inflation
-    const skuPrices = {};
-    for (let y = 1; y <= 5; y++) {
-      const base = y === 1 ? 1 : (1 + inflation / 100) ** (y - 1);
-      skuPrices[y] = {
-        developer: skuDeveloper * base,
-        designer: skuDesigner * base,
-        trial: skuTrial * base,
-        consulting: skuConsulting * base,
-      };
-      // Override with manual if set
-      if (y >= 2) {
-        skuPrices[y].developer = skuDeveloperY2 || skuPrices[y].developer;
-        skuPrices[y].designer = skuDesignerY2 || skuPrices[y].designer;
-        skuPrices[y].trial = skuTrialY2 || skuPrices[y].trial;
-        skuPrices[y].consulting = skuConsultingY2 || skuPrices[y].consulting;
-        if (y >= 3) {
-          skuPrices[y].developer = skuDeveloperY3 || skuPrices[y].developer;
-          skuPrices[y].designer = skuDesignerY3 || skuPrices[y].designer;
-          skuPrices[y].trial = skuTrialY3 || skuPrices[y].trial;
-          skuPrices[y].consulting = skuConsultingY3 || skuPrices[y].consulting;
-        }
-        if (y >= 4) {
-          skuPrices[y].developer = skuDeveloperY4 || skuPrices[y].developer;
-          skuPrices[y].designer = skuDesignerY4 || skuPrices[y].designer;
-          skuPrices[y].trial = skuTrialY4 || skuPrices[y].trial;
-          skuPrices[y].consulting = skuConsultingY4 || skuPrices[y].consulting;
-        }
-        if (y >= 5) {
-          skuPrices[y].developer = skuDeveloperY5 || skuPrices[y].developer;
-          skuPrices[y].designer = skuDesignerY5 || skuPrices[y].designer;
-          skuPrices[y].trial = skuTrialY5 || skuPrices[y].trial;
-          skuPrices[y].consulting = skuConsultingY5 || skuPrices[y].consulting;
-        }
-      }
-    }
-
-    // Note: revenue will be computed per-SKU using yearly vs monthly billing mixes
-
-    let clients = initialClients;
-    let capital = initialInvestment;
-    let totalEmp = initialEmployees;
-    let launchApplied = false;
-
-    // receipts schedule (month index -> cash amount received that month)
-    const receipts = {};
-    const scheduleReceipt = (m, amt) => {
-      if (m < 1 || m > 60) return;
-      receipts[m] = (receipts[m] || 0) + amt;
-    };
-
-    // schedule initial clients as signed at month 1 (use revenuePerClientY1 spread monthly)
-    const paymentLagMonthsInitial = Math.round((avgPaymentLag || 0) / 30);
-    if (initialClients > 0) {
-      const monthlyInit = (revenuePerClientY1 || 0) / 12 * initialClients;
-      for (let m = 1 + paymentLagMonthsInitial; m <= 60; m++) scheduleReceipt(m, monthlyInit);
-    }
-    let prevClients = 0;
-
-    const rows = [];
-
-    for (let abs = 1; abs <= 60; abs++) {
-      const year = Math.ceil(abs / 12);
-      const miy = ((abs - 1) % 12) + 1;
-      const isLaunch = abs === launchAbsMonth;
-
-      // Quarterly growth (every 3 months: abs 4,7,10,13...)
-      if (abs > 1 && (abs - 1) % 3 === 0) {
-        clients = Math.round(clients * (1 + clientGrowthQtr / 100));
-      }
-      // Launch boost
-      if (isLaunch && !launchApplied) {
-        clients = Math.round(clients * launchBoostMultiplier);
-        launchApplied = true;
-      }
-
-      const isPostLaunch = abs >= launchAbsMonth;
-      const pipeline = Math.round(clients / (conversionRate / 100));
-
-      // Regional clients per year
-      let indiaPctVal, mePctVal, europePctVal, australiaPctVal;
-      if (year === 1) {
-        indiaPctVal = indiaPct; mePctVal = mePct; europePctVal = europePct; australiaPctVal = australiaPct;
-      } else if (year === 2) {
-        indiaPctVal = indiaPctY2; mePctVal = mePctY2; europePctVal = europePctY2; australiaPctVal = australiaPctY2;
-      } else if (year === 3) {
-        indiaPctVal = indiaPctY3; mePctVal = mePctY3; europePctVal = europePctY3; australiaPctVal = australiaPctY3;
-      } else if (year === 4) {
-        indiaPctVal = indiaPctY4; mePctVal = mePctY4; europePctVal = europePctY4; australiaPctVal = australiaPctY4;
-      } else {
-        indiaPctVal = indiaPctY5; mePctVal = mePctY5; europePctVal = europePctY5; australiaPctVal = australiaPctY5;
-      }
-
-      const indiaC = Math.round(clients * indiaPctVal / 100);
-      const meC = Math.round(clients * mePctVal / 100);
-      const europeC = Math.round(clients * europePctVal / 100);
-      const ausC = clients - indiaC - meC - europeC;
-
-      // Compute total annual revenue using SKU mixes and billing mixes
-      let totalRevenueAnnual = 0;
-      let skuRevenueBreakdown = { developer: 0, designer: 0, trial: 0, consulting: 0 };
-      if (isPostLaunch) {
-        const skus = [
-          { id: 'developer', pct: skuDevPct, yearlyPrice: skuPrices[year].developer, monthlyPrice: inp[`skuDeveloperY${year}_month`] },
-          { id: 'designer',  pct: skuDesPct,  yearlyPrice: skuPrices[year].designer,  monthlyPrice: inp[`skuDesignerY${year}_month`]  },
-          { id: 'trial',     pct: skuTrialPct, yearlyPrice: skuPrices[year].trial,     monthlyPrice: inp[`skuTrialY${year}_month`]     },
-          { id: 'consulting',pct: skuConsPct,  yearlyPrice: skuPrices[year].consulting,monthlyPrice: inp[`skuConsultingY${year}_month`]  },
-        ];
-
-        for (const s of skus) {
-          const skuClients = clients * (s.pct / 100);
-          const yearPctKey = `sku${s.id.charAt(0).toUpperCase() + s.id.slice(1)}Y${year}_yearPct`;
-          const monthPctKey = `sku${s.id.charAt(0).toUpperCase() + s.id.slice(1)}Y${year}_monthPct`;
-          const yearlyMix = Number(inp[yearPctKey] ?? 100);
-          const monthlyMix = Number(inp[monthPctKey] ?? (100 - yearlyMix));
-          const yearlyClients = skuClients * (yearlyMix / 100);
-          const monthlyClients = skuClients * (monthlyMix / 100);
-          const yearlyPrice = s.yearlyPrice || 0;
-          const monthlyPrice = (s.monthlyPrice && s.monthlyPrice > 0) ? s.monthlyPrice : (yearlyPrice / 12 || 0);
-          const yearlyRev = yearlyClients * yearlyPrice;
-          const monthlyRev = monthlyClients * monthlyPrice * 12;
-          const skuRev = yearlyRev + monthlyRev;
-          skuRevenueBreakdown[s.id] = skuRev;
-          totalRevenueAnnual += skuRev;
-        }
-      } else {
-        totalRevenueAnnual = revenuePerClientY1 * clients;
-      }
-
-      const revenue = totalRevenueAnnual;
-      const mrr = totalRevenueAnnual / 12;
-
-      // Payment lag scheduling: when new signed clients appear (delta), schedule cash receipts
-      const paymentLagMonths = Math.max(0, Math.round((avgPaymentLag || 0) / 30));
-      const saleLagMonths = Math.max(0, Math.round((avgSalesCycle || 0) / 30));
-      const deltaSigned = Math.max(0, clients - prevClients);
-      if (deltaSigned > 0) {
-        // allocate new signed clients across SKUs and billing mixes for this year
-        const skusNew = [
-          { id: 'developer', pct: skuDevPct, yearlyPrice: skuPrices[year].developer, monthlyPrice: inp[`skuDeveloperY${year}_month`] },
-          { id: 'designer',  pct: skuDesPct,  yearlyPrice: skuPrices[year].designer,  monthlyPrice: inp[`skuDesignerY${year}_month`]  },
-          { id: 'trial',     pct: skuTrialPct, yearlyPrice: skuPrices[year].trial,     monthlyPrice: inp[`skuTrialY${year}_month`]     },
-          { id: 'consulting',pct: skuConsPct,  yearlyPrice: skuPrices[year].consulting,monthlyPrice: inp[`skuConsultingY${year}_month`]  },
-        ];
-        for (const s of skusNew) {
-          const skuNewCount = deltaSigned * (s.pct / 100);
-          const yearPctKey = `sku${s.id.charAt(0).toUpperCase() + s.id.slice(1)}Y${year}_yearPct`;
-          const monthPctKey = `sku${s.id.charAt(0).toUpperCase() + s.id.slice(1)}Y${year}_monthPct`;
-          const yearlyMix = Number(inp[yearPctKey] ?? 100);
-          const monthlyMix = Number(inp[monthPctKey] ?? (100 - yearlyMix));
-          const yearlyClients = skuNewCount * (yearlyMix / 100);
-          const monthlyClients = skuNewCount * (monthlyMix / 100);
-          const yearlyPrice = s.yearlyPrice || 0;
-          const monthlyPrice = (s.monthlyPrice && s.monthlyPrice > 0) ? s.monthlyPrice : (yearlyPrice / 12 || 0);
-          // schedule yearly payments: at sign month + paymentLagMonths
-          const yearlyReceiptMonth = abs + paymentLagMonths;
-          scheduleReceipt(yearlyReceiptMonth, yearlyClients * yearlyPrice);
-          // schedule monthly recurring receipts starting at sign month + paymentLagMonths
-          const monthlyStart = abs + paymentLagMonths;
-          for (let m = monthlyStart; m <= 60; m++) scheduleReceipt(m, monthlyClients * monthlyPrice);
-        }
-      }
-
-      // collect cash received this month
-      const cashReceived = receipts[abs] || 0;
-
-      // Distribute revenue to regions proportionally by client counts
-      const indiaINR = clients > 0 ? revenue * (indiaC / Math.max(1, clients)) : 0;
-      const meINR = clients > 0 ? revenue * (meC / Math.max(1, clients)) : 0;
-      const europeINR = clients > 0 ? revenue * (europeC / Math.max(1, clients)) : 0;
-      const ausINR = clients > 0 ? revenue * (ausC / Math.max(1, clients)) : 0;
-      const meAED = aedToInr > 0 ? meINR / aedToInr : 0;
-      const europeEUR = eurToInr > 0 ? europeINR / eurToInr : 0;
-      const ausAUD = audToInr > 0 ? ausINR / audToInr : 0;
-
-      // Sessions & staffing
-      const totalSessions = clients * (sessionsPerClientPerMonth + onboardingSessionsPerClient);
-      const reqEmp = Math.ceil(totalSessions / Math.max(1, sessionCapacityPerEmployee));
-      const newHires = Math.max(0, reqEmp - totalEmp);
-      totalEmp = Math.max(totalEmp, reqEmp);
-      const empCapacity = totalEmp * sessionCapacityPerEmployee;
-      const extraEmp = Math.max(0, totalEmp - initialEmployees);
-
-      // Expenses
-      const salaryExp = salaries + extraEmp * salaryPerDesigner;
-      const officeExp = rent + extraEmp * officePerDesigner;
-      const totalExp = salaryExp + officeExp + stackCosts + apiCosts;
-
-      const net = (cashReceived || 0) - totalExp;
-      capital += net;
-
-      rows.push({
-        abs, year, miy,
-        label: `Y${year}M${String(miy).padStart(2, "0")}`,
-        isPostLaunch, _launch: isLaunch,
-        clients, pipeline,
-        indiaC, meC, europeC, ausC,
-        sessionsPerClient: sessionsPerClientPerMonth + onboardingSessionsPerClient,
-        totalSessions, empCapacity, reqEmp, totalEmp, newHires,
-        salaryExp, officeExp, totalExp,
-        indiaINR, meINR, europeINR, ausINR,
-        meAED, europeEUR, ausAUD,
-        revenue, mrr: mrr ?? revenue, net, capital,
-        devRev: isPostLaunch ? skuRevenueBreakdown.developer : 0,
-        desRev: isPostLaunch ? skuRevenueBreakdown.designer : 0,
-        trialRev: isPostLaunch ? skuRevenueBreakdown.trial : 0,
-        consRev: isPostLaunch ? skuRevenueBreakdown.consulting : 0,
-      });
-      prevClients = clients;
-    }
-
-    // Top-level KPIs
-    const yr5Val = valuationNow * fiveYearReturn;
-    const yr5EBITDA = yr5Val / pe;
-    const yr5Rev = yr5EBITDA / (ebitdaPct / 100);
-    const yr1Total = rows.filter(r => r.year === 1).reduce((s, r) => s + r.revenue, 0);
-    const yr5Total = rows.filter(r => r.year === 5).reduce((s, r) => s + r.revenue, 0);
-    const lastRow = rows[59];
-    const maxEmp = Math.max(...rows.map(r => r.totalEmp));
-    const totalHires = rows.reduce((s, r) => s + r.newHires, 0);
-    const monthlyBurn = inp.salaries + inp.rent + inp.stackCosts + inp.apiCosts;
-    const runway = monthlyBurn > 0 ? Math.floor(inp.initialInvestment / monthlyBurn) : 99;
-    
-    // Calculate average sessions per client post-launch
-    const postLaunchRows = rows.filter(r => r.isPostLaunch);
-    const avgSessionsPerClient = postLaunchRows.length > 0 
-      ? postLaunchRows.reduce((s, r) => s + r.sessionsPerClient, 0) / postLaunchRows.length
-      : 0;
-
-    return { rows, kpi: { yr5Val, yr5EBITDA, yr5Rev, yr1Total, yr5Total, lastRow, maxEmp, totalHires, monthlyBurn, runway, launchAbsMonth, avgSessionsPerClient } };
-  }, [inp]);
+  const allScenarioResults = useMemo(() => scenarios.map(s => runModel(s.inputs)), [scenarios]);
 
   /* ── Filtered rows ── */
   const tableRows = useMemo(() =>
@@ -591,7 +677,6 @@ export default function SentientGrid() {
     }));
   }, [rows]);
 
-  // Region Mix Pie Chart State
   const [regionMixYear, setRegionMixYear] = useState('Y1');
   const regionMixPieData = useMemo(() => {
     const yearMap = {
@@ -630,40 +715,37 @@ export default function SentientGrid() {
     return Object.entries(mix).map(([name, value]) => ({ name, value: Number(value) || 0 }));
   }, [regionMixYear, inp]);
 
-  // Collapsible state for Inputs page
   const [showAllRegionMixYears, setShowAllRegionMixYears] = useState(false);
   const [showAllSkuYears, setShowAllSkuYears] = useState(false);
 
-  /* ── Launch reference label ── */
   const launchLabel = `Y2M${String(inp.platformLaunchMonth).padStart(2,"0")}`;
 
-  /* ── Monthly table columns ── */
   const tableCols = [
-    { key: "label",      label: "Period",       format: v=>v,                               color: (_,r) => r._launch ? C.accent : C.muted },
-    { key: "isPostLaunch", label: "Model",      format: v=> v ? "SKU":"Fixed",              color: v => v ? C.green : C.accent },
-    { key: "clients",    label: "Clients",       format: fmtNum,                             color: () => C.text },
-    { key: "indiaC",     label: "🇮🇳 IN",       format: fmtNum,                             color: () => C.green },
-    { key: "meC",        label: "🇦🇪 ME",       format: fmtNum,                             color: () => C.accent },
-    { key: "europeC",    label: "🇪🇺 EU",       format: fmtNum,                             color: () => C.blue },
-    { key: "ausC",       label: "🇦🇺 AU",       format: fmtNum,                             color: () => C.teal },
+    { key: "label",       label: "Period",      format: v=>v,                               color: (_,r) => r._launch ? C.accent : C.muted },
+    { key: "pricingModel",label: "Model",       format: (v, r) => v === 'perAcre' ? 'Per Acre' : (r.isPostLaunch ? 'SKU' : 'Fixed'), color: (v, r) => v === 'perAcre' ? '#d4a843' : (r.isPostLaunch ? C.green : C.accent) },
+    { key: "clients",     label: "Clients",      format: fmtNum,                             color: () => C.text },
+    { key: "indiaC",      label: "🇮🇳 IN",       format: fmtNum,                             color: () => C.green },
+    { key: "meC",         label: "🇦🇪 ME",       format: fmtNum,                             color: () => C.accent },
+    { key: "europeC",     label: "🇪🇺 EU",       format: fmtNum,                             color: () => C.blue },
+    { key: "ausC",        label: "🇦🇺 AU",       format: fmtNum,                             color: () => C.teal },
     { key: "sessionsPerClient", label: "Sess/Cl", format: fmtNum },
-    { key: "totalSessions", label: "Total Sess", format: fmtNum,                            color: () => C.purple },
-    { key: "empCapacity",   label: "Emp Cap",    format: fmtNum },
-    { key: "reqEmp",     label: "Req Emp",       format: fmtNum,                             color: (v,r) => v > r.totalEmp - r.newHires ? C.red : C.muted },
-    { key: "totalEmp",   label: "Total Emp",     format: fmtNum,                             color: () => C.text },
-    { key: "newHires",   label: "New Hires",     format: v => v > 0 ? `+${v}` : "—",        color: v => v > 0 ? C.red : C.dim },
-    { key: "salaryExp",  label: "Salary ₹",      format: fmtINR,                             color: () => C.red },
-    { key: "officeExp",  label: "Office ₹",      format: fmtINR,                             color: () => "#e87a45" },
-    { key: "totalExp",   label: "Total Exp ₹",   format: fmtINR,                             color: () => C.red },
-    { key: "indiaINR",   label: "IN Rev ₹",      format: fmtINR,                             color: () => C.green },
-    { key: "meINR",      label: "ME Rev ₹",      format: fmtINR,                             color: () => "#b8842a" },
-    { key: "europeINR",  label: "EU Rev ₹",      format: fmtINR,                             color: () => "#3a7cc0" },
-    { key: "ausINR",     label: "AU Rev ₹",      format: fmtINR,                             color: () => "#1fa89a" },
-    { key: "revenue",    label: "Total Rev ₹",   format: fmtINR,                             color: () => C.green },
-    { key: "mrr",        label: "MRR ₹",         format: fmtINR,                             color: () => C.blue },
-    { key: "net",        label: "Net CF ₹",      format: fmtINR,                             color: v => v >= 0 ? C.green : C.red },
-    { key: "capital",    label: "Capital ₹",     format: fmtINR,                             color: v => v >= 0 ? C.green : C.red },
-    { key: "pipeline",   label: "Pipeline",      format: fmtNum },
+    { key: "totalSessions",  label: "Total Sess", format: fmtNum,                            color: () => C.purple },
+    { key: "empCapacity",    label: "Emp Cap",    format: fmtNum },
+    { key: "reqEmp",      label: "Req Emp",       format: fmtNum,                             color: (v,r) => v > r.totalEmp - r.newHires ? C.red : C.muted },
+    { key: "totalEmp",    label: "Total Emp",     format: fmtNum,                             color: () => C.text },
+    { key: "newHires",    label: "New Hires",     format: v => v > 0 ? `+${v}` : "—",        color: v => v > 0 ? C.red : C.dim },
+    { key: "salaryExp",   label: "Salary ₹",      format: fmtINR,                             color: () => C.red },
+    { key: "officeExp",   label: "Office ₹",      format: fmtINR,                             color: () => "#e87a45" },
+    { key: "totalExp",    label: "Total Exp ₹",   format: fmtINR,                             color: () => C.red },
+    { key: "indiaINR",    label: "IN Rev ₹",      format: fmtINR,                             color: () => C.green },
+    { key: "meINR",       label: "ME Rev ₹",      format: fmtINR,                             color: () => "#b8842a" },
+    { key: "europeINR",   label: "EU Rev ₹",      format: fmtINR,                             color: () => "#3a7cc0" },
+    { key: "ausINR",      label: "AU Rev ₹",      format: fmtINR,                             color: () => "#1fa89a" },
+    { key: "revenue",     label: "Total Rev ₹",   format: fmtINR,                             color: () => C.green },
+    { key: "mrr",         label: "MRR ₹",         format: fmtINR,                             color: () => C.blue },
+    { key: "net",         label: "Net CF ₹",      format: fmtINR,                             color: v => v >= 0 ? C.green : C.red },
+    { key: "capital",     label: "Capital ₹",     format: fmtINR,                             color: v => v >= 0 ? C.green : C.red },
+    { key: "pipeline",    label: "Pipeline",      format: fmtNum },
   ];
 
   const regionOk = Math.round(inp.indiaPct+inp.mePct+inp.europePct+inp.australiaPct) === 100;
@@ -696,10 +778,38 @@ export default function SentientGrid() {
             {!skuOk    && <Badge color={C.red}>SKU ≠100%</Badge>}
           </div>
         </div>
-        <div style={{ display: "flex", gap: "4px" }}>
-          {["overview","inputs","monthly","charts"].map(t => (
+        <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+          {/* Scenario switcher */}
+          <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+            {scenarios.map((s, i) => (
+              <button
+                key={i}
+                onClick={() => setActiveScenarioIdx(i)}
+                onDoubleClick={() => {
+                  const newName = prompt('Rename scenario:', s.name);
+                  if (newName) renameScenario(i, newName);
+                }}
+                style={{
+                  background: activeScenarioIdx === i ? C.accent : 'transparent',
+                  color: activeScenarioIdx === i ? '#fff' : C.muted,
+                  border: `1px solid ${activeScenarioIdx === i ? C.accent : C.border}`,
+                  padding: '5px 11px', borderRadius: '6px', cursor: 'pointer', fontSize: '14px',
+                  fontFamily: 'monospace'
+                }}
+              >{s.name}</button>
+            ))}
+            {scenarios.length < 3 && (
+              <button
+                onClick={addScenario}
+                title="Add scenario"
+                style={{ background: 'transparent', border: `1px dashed ${C.border}`, color: C.muted, padding: '5px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '18px' }}
+              >＋</button>
+            )}
+          </div>
+          {/* Tab buttons */}
+          {["overview","inputs","monthly","charts","compare"].map(t => (
             <TabBtn key={t} active={tab===t} onClick={()=>setTab(t)}>
-              {t==="overview"?"Overview":t==="inputs"?"Inputs":t==="monthly"?"Monthly Table":"Charts"}
+              {t==="overview"?"Overview":t==="inputs"?"Inputs":t==="monthly"?"Monthly Table":t==="charts"?"Charts":"Compare"}
             </TabBtn>
           ))}
         </div>
@@ -803,6 +913,60 @@ export default function SentientGrid() {
         {/* ══════ INPUTS ══════ */}
         {tab === "inputs" && (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(265px, 1fr))", gap: "14px" }}>
+
+            {/* Pricing Model Selector */}
+            <Card>
+              <Sec>🏷️ Pricing Model</Sec>
+              <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+                {[
+                  { id: 'annualSaas', label: '📦 Annual SaaS / SKU', desc: 'Per-seat annual contracts' },
+                  { id: 'perAcre', label: '🌾 Per Acre', desc: 'Revenue per project acre' },
+                ].map(model => (
+                  <div
+                    key={model.id}
+                    onClick={() => updStr('pricingModel', model.id)}
+                    style={{
+                      flex: 1, padding: '12px 16px', borderRadius: 8, cursor: 'pointer',
+                      border: `2px solid ${inp.pricingModel === model.id ? C.accent : C.border}`,
+                      background: inp.pricingModel === model.id ? `${C.accent}15` : C.bgCard,
+                    }}
+                  >
+                    <div style={{ fontSize: 15, fontWeight: 600, color: inp.pricingModel === model.id ? C.accent : C.text }}>{model.label}</div>
+                    <div style={{ fontSize: 13, color: C.dim, marginTop: 4 }}>{model.desc}</div>
+                  </div>
+                ))}
+              </div>
+              {inp.pricingModel === 'perAcre' && (
+                <>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+                    {Object.entries(PRICE_TIERS).map(([tier, price]) => (
+                      <button
+                        key={tier}
+                        onClick={() => upd('pricePerAcre', price)}
+                        style={{
+                          flex: 1, padding: '6px 8px', borderRadius: 6, cursor: 'pointer', fontSize: 13,
+                          border: `1px solid ${inp.pricePerAcre === price ? C.accent : C.border}`,
+                          background: inp.pricePerAcre === price ? C.accent : C.bgCard,
+                          color: inp.pricePerAcre === price ? '#fff' : C.text,
+                        }}
+                      >
+                        {tier.charAt(0).toUpperCase() + tier.slice(1)}<br/>₹{(price/1000).toFixed(0)}K
+                      </button>
+                    ))}
+                  </div>
+                  <Field label="Price per Acre (₹)" id="pricePerAcre" value={inp.pricePerAcre} onChange={upd} prefix="₹" suffix="/acre" />
+                  <Field label="Avg Project Size (acres)" id="avgProjectSizeAcres" value={inp.avgProjectSizeAcres} onChange={upd} suffix="acres"
+                    hint={`= ₹${((inp.pricePerAcre || 10000) * (inp.avgProjectSizeAcres || 35) / 100000).toFixed(1)}L/project`} />
+                  <Field label="Total SAM (acres)" id="totalSAMacres" value={inp.totalSAMacres} onChange={upd} suffix="acres" />
+                  <Field label="Market Capture %" id="marketCapturePct" value={inp.marketCapturePct} onChange={upd} suffix="%" />
+                  <Sec>📅 Annual Project Targets</Sec>
+                  {[1,2,3,4,5].map(y => (
+                    <Field key={y} label={`Y${y} Projects`} id={`perAcreProjectsY${y}`} value={inp[`perAcreProjectsY${y}`]} onChange={upd}
+                      hint={`= ${fmtINR((inp[`perAcreProjectsY${y}`] || 0) * (inp.pricePerAcre || 10000) * (inp.avgProjectSizeAcres || 35))}`} />
+                  ))}
+                </>
+              )}
+            </Card>
 
             <Card variant="purple">
               <Sec color="#fff">📄 PDF Baseline</Sec>
@@ -938,6 +1102,36 @@ export default function SentientGrid() {
                   <span style={{color:C.red}}>{kpi.runway} months</span>
                 </div>
               </div>
+            </Card>
+
+            <Card variant="purple">
+              <Sec color="#fff">🏗️ Headcount Cost Model</Sec>
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {[{ id: false, label: 'Simple Burn' }, { id: true, label: 'Headcount Model' }].map(opt => (
+                    <div
+                      key={String(opt.id)}
+                      onClick={() => updStr('useHeadcountSalaryModel', opt.id)}
+                      style={{ flex: 1, padding: '8px 12px', borderRadius: 6, cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 600,
+                        border: `2px solid ${inp.useHeadcountSalaryModel === opt.id ? C.accent : C.border}`,
+                        background: inp.useHeadcountSalaryModel === opt.id ? `${C.accent}22` : 'transparent',
+                        color: inp.useHeadcountSalaryModel === opt.id ? C.accent : '#fff' }}
+                    >{opt.label}</div>
+                  ))}
+                </div>
+              </div>
+              {inp.useHeadcountSalaryModel && <>
+                <Field label="BD Personnel" id="numBDPersonnel" value={inp.numBDPersonnel} onChange={upd} suffix="ppl" />
+                <Field label="Salary BD (annual)" id="salaryBD" value={inp.salaryBD} onChange={upd} prefix="₹" />
+                <Field label="Planning Specialists" id="numPlanningSpecialists" value={inp.numPlanningSpecialists} onChange={upd} suffix="ppl" />
+                <Field label="Salary Specialist (annual)" id="salaryPlanningSpecialist" value={inp.salaryPlanningSpecialist} onChange={upd} prefix="₹" />
+                <Field label="Operations Staff" id="numOperationsStaff" value={inp.numOperationsStaff} onChange={upd} suffix="ppl" />
+                <Field label="Salary Operations (annual)" id="salaryOperations" value={inp.salaryOperations} onChange={upd} prefix="₹" />
+                <Field label="Founders" id="numFounders" value={inp.numFounders} onChange={upd} suffix="ppl" />
+                <Field label="Salary Founder (annual)" id="salaryFounder" value={inp.salaryFounder} onChange={upd} prefix="₹" />
+                <Field label="Cloud Infra (annual)" id="cloudInfraAnnual" value={inp.cloudInfraAnnual} onChange={upd} prefix="₹" />
+                <Field label="Software / CRM (annual)" id="softwareCRMAnnual" value={inp.softwareCRMAnnual} onChange={upd} prefix="₹" />
+              </>}
             </Card>
 
             <Card variant="purple">
@@ -1230,6 +1424,11 @@ export default function SentientGrid() {
             </Card>
 
           </div>
+        )}
+
+        {/* ══════ COMPARE ══════ */}
+        {tab === "compare" && (
+          <ComparePage allScenarioResults={allScenarioResults} scenarios={scenarios} />
         )}
       </div>
     </div>
