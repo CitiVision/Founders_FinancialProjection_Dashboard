@@ -1,4 +1,5 @@
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { C } from '../components/uiAtoms.jsx';
 
 const fmtINR = (n) => {
   if (n === undefined || n === null || isNaN(n)) return "₹0";
@@ -61,12 +62,6 @@ export default function ComparePage({ allScenarioResults, scenarios }) {
     });
     return entry;
   });
-
-  const C = {
-    bg: '#F9FAFB', bgCard: '#FFFFFF', border: '#D1D5DB',
-    accent: '#d4a843', text: '#111827', muted: '#374151', dim: '#6B7280',
-    green: '#38c96a',
-  };
 
   return (
     <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: 24 }}>
